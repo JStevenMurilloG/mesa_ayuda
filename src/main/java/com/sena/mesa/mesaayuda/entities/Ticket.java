@@ -21,8 +21,10 @@ public class Ticket {
 
     String descripcion;
 
+    @Enumerated(EnumType.STRING)
     Prioridad prioridad;
 
+    @Enumerated(EnumType.STRING)
     Estado estado;
 
     LocalDateTime creadoEn;
