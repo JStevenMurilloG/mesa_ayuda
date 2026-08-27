@@ -19,11 +19,15 @@ public class Usuario {
     Long id;
 
     String nombre;
+
+    @Column(unique = true)
     String email;
+
     String password;
 
     @Enumerated(EnumType.STRING)
-    Rol rol;
+    @Column(nullable = false)
+    Rol rol = Rol.USUARIO;
 
 
 

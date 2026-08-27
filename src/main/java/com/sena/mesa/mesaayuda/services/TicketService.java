@@ -5,35 +5,24 @@ import com.sena.mesa.mesaayuda.entities.Ticket;
 import com.sena.mesa.mesaayuda.entities.Usuario;
 import com.sena.mesa.mesaayuda.enums.Estado;
 import com.sena.mesa.mesaayuda.enums.Prioridad;
-import com.sena.mesa.mesaayuda.exceptions.UserNotFoundException;
+import com.sena.mesa.mesaayuda.exceptions.TicketNotFoundException;
 import com.sena.mesa.mesaayuda.repositories.TicketRepository;
-import com.sena.mesa.mesaayuda.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TicketService {
 
-    private final UsuarioRepository usuarioRepository;
     private final TicketRepository ticketRepository;
 
-    TicketService(UsuarioRepository usuarioRepository, TicketRepository ticketRepository) {
-        this.usuarioRepository = usuarioRepository;
+    TicketService(TicketRepository ticketRepository) {
         this.ticketRepository = ticketRepository;
     }
 
-    public Ticket crearTicket(TicketDTO ticketDTO){
-
-        Optional<Usuario> usuario = usuarioRepository.findById(ticketDTO.usuarioId());
-
-        if(usuario.isEmpty()){
-            throw new UserNotFoundException("Usuario no encontrado");
-        }
-
-        Usuario usuarioActual = usuario.get();
-
+    public Ticket crearTicket(TicketDTO ticketDTO, Usuario usuario) {
         Ticket nuevoTicket = new Ticket();
 
         nuevoTicket.setTitulo(ticketDTO.titulo());
@@ -41,9 +30,9 @@ public class TicketService {
         nuevoTicket.setPrioridad(ticketDTO.prioridad());
         nuevoTicket.setEstado(Estado.ABIERTO);
         nuevoTicket.setCreadoEn(LocalDateTime.now());
-        nuevoTicket.setCreadoPor(usuarioActual);
+        nuevoTicket.setCreadoPor(usuario);
 
-        switch (ticketDTO.prioridad()){
+        switch (ticketDTO.prioridad()) {
             case ALTA:
                 nuevoTicket.setSlaVenceEn(LocalDateTime.now().plusHours(4));
                 break;
@@ -57,5 +46,29 @@ public class TicketService {
 
         ticketRepository.save(nuevoTicket);
         return nuevoTicket;
+    }
+
+    public List<Ticket> listarTodos() {
+        return ticketRepository.findAll();
+    }
+
+    public List<Ticket> listarPorCreador(Usuario usuario) {
+        return ticketRepository.findByCreadoPor(usuario);
+    }
+
+    public Optional<Ticket> findById(Long id) {
+        return ticketRepository.findById(id);
+    }
+
+    public Ticket cambiarEstado(Long ticketId, Estado nuevoEstado) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new TicketNotFoundException("Ticket no encontrado"));
+        ticket.setEstado(nuevoEstado);
+        ticketRepository.save(ticket);
+        return ticket;
+    }
+
+    public List<Ticket> listarVencidos() {
+        return ticketRepository.findBySlaVenceEnBeforeAndEstadoNot(LocalDateTime.now(), Estado.RESUELTO);
     }
 }

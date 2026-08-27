@@ -17,14 +17,18 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(nullable = false)
     String titulo;
 
+    @Column(nullable = false)
     String descripcion;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     Prioridad prioridad;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     Estado estado;
 
     LocalDateTime creadoEn;
