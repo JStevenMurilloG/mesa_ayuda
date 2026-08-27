@@ -1,0 +1,454 @@
+{
+	"info": {
+		"_postman_id": "auth-publicos-01",
+		"name": "01 - Auth Publicos",
+		"description": "Registro, Login y Refresh Token. Ejecutar en orden para poblar variables de entorno.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Registro USUARIO",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"Usuario Test\",\n  \"email\": \"usuario@test.com\",\n  \"password\": \"usuario123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/registro",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "registro"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Registro SOPORTE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"Soporte Test\",\n  \"email\": \"soporte@test.com\",\n  \"password\": \"soporte123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/registro",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "registro"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Registro ADMIN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"Admin Test\",\n  \"email\": \"admin@test.com\",\n  \"password\": \"admin1234\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/registro",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "registro"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Registro - Email duplicado (409)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 409 Conflict', function () {",
+							"    pm.response.to.have.status(409);",
+							"});",
+							"",
+							"pm.test('Error message about email', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body.mensaje).to.include('email');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"Duplicate\",\n  \"email\": \"usuario@test.com\",\n  \"password\": \"password123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/registro",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "registro"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Registro - Datos invalidos (400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 400 Bad Request', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test('Error message present', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('mensaje');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"\",\n  \"email\": \"no-email\",\n  \"password\": \"12\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/registro",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "registro"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login USUARIO",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response has accessToken and refreshToken', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('accessToken');",
+							"    pm.expect(body).to.have.property('refreshToken');",
+							"    pm.environment.set('usuarioToken', body.accessToken);",
+							"    pm.environment.set('usuarioRefreshToken', body.refreshToken);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"usuario@test.com\",\n  \"password\": \"usuario123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login SOPORTE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response has accessToken and refreshToken', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('accessToken');",
+							"    pm.expect(body).to.have.property('refreshToken');",
+							"    pm.environment.set('soporteToken', body.accessToken);",
+							"    pm.environment.set('soporteRefreshToken', body.refreshToken);",
+							"    pm.environment.set('accessToken', body.accessToken);",
+							"    pm.environment.set('refreshToken', body.refreshToken);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"soporte@test.com\",\n  \"password\": \"soporte123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login ADMIN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response has accessToken and refreshToken', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('accessToken');",
+							"    pm.expect(body).to.have.property('refreshToken');",
+							"    pm.environment.set('adminToken', body.accessToken);",
+							"    pm.environment.set('adminRefreshToken', body.refreshToken);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"admin1234\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login - Credenciales invalidas (401)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 401 Unauthorized', function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test('Error message present', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body.mensaje).to.include('Credenciales');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"usuario@test.com\",\n  \"password\": \"wrongpassword\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token - Valido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('New accessToken returned', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('accessToken');",
+							"    pm.expect(body.accessToken).to.not.be.empty;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/refresh",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "refresh"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token - Invalido (400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 400 Bad Request', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test('Error about invalid refresh token', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body.mensaje).to.include('Refresh token');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"refreshToken\": \"invalid.token.here\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/refresh",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "refresh"]
+				}
+			},
+			"response": []
+		}
+	]
+}

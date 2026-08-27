@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "auth-logout-02",
+		"name": "02 - Auth Logout",
+		"description": "Logout y verificación de revocación del refresh token. Requiere tokens de la colección 01.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Logout - SOPORTE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 204 No Content', function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/logout",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "logout"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh post-logout - Debe fallar (400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 400 - Refresh token revoked', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test('Error about revoked/invalid token', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body.mensaje).to.satisfy(function(msg) {",
+							"        return msg.includes('Refresh token') || msg.includes('revocado') || msg.includes('inválido');",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"refreshToken\": \"{{soporteRefreshToken}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/refresh",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "refresh"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Re-login SOPORTE (para siguientes requests)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Tokens refreshed', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('accessToken');",
+							"    pm.expect(body).to.have.property('refreshToken');",
+							"    pm.environment.set('soporteToken', body.accessToken);",
+							"    pm.environment.set('soporteRefreshToken', body.refreshToken);",
+							"    pm.environment.set('accessToken', body.accessToken);",
+							"    pm.environment.set('refreshToken', body.refreshToken);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"soporte@test.com\",\n  \"password\": \"soporte123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			},
+			"response": []
+		}
+	]
+}

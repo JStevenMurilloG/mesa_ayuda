@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "tickets-auth-03",
+		"name": "03 - Tickets Autenticado",
+		"description": "Endpoints de tickets accesibles por cualquier usuario autenticado. Requiere token de la colección 01.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Crear Ticket - ALTA",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test('Ticket has id', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('id');",
+							"    pm.environment.set('ticketId', body.id);",
+							"});",
+							"",
+							"pm.test('Estado is ABIERTO', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body.estado).to.eql('ABIERTO');",
+							"});",
+							"",
+							"pm.test('SLA for ALTA is 4 hours', function () {",
+							"    const body = pm.response.json();",
+							"    const created = new Date(body.creadoEn);",
+							"    const sla = new Date(body.slaVenceEn);",
+							"    const diffHours = (sla - created) / (1000 * 60 * 60);",
+							"    pm.expect(diffHours).to.eql(4);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"PC no enciende\",\n  \"descripcion\": \"La computadora del puesto 5 no enciende al presionar el boton de power\",\n  \"prioridad\": \"ALTA\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Ticket - MEDIA",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test('SLA for MEDIA is 24 hours', function () {",
+							"    const body = pm.response.json();",
+							"    const created = new Date(body.creadoEn);",
+							"    const sla = new Date(body.slaVenceEn);",
+							"    const diffHours = (sla - created) / (1000 * 60 * 60);",
+							"    pm.expect(diffHours).to.eql(24);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"Impresora no responde\",\n  \"descripcion\": \"La impresora del area de contabilidad no imprime, muestra error de conexion\",\n  \"prioridad\": \"MEDIA\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Ticket - BAJA",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test('SLA for BAJA is 72 hours', function () {",
+							"    const body = pm.response.json();",
+							"    const created = new Date(body.creadoEn);",
+							"    const sla = new Date(body.slaVenceEn);",
+							"    const diffHours = (sla - created) / (1000 * 60 * 60);",
+							"    pm.expect(diffHours).to.eql(72);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"Solicitud de mouse nuevo\",\n  \"descripcion\": \"El mouse del puesto 3 esta desgastado, solicito reemplazo\",\n  \"prioridad\": \"BAJA\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Ticket - Datos invalidos (400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 400 Bad Request', function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"titulo\": \"\",\n  \"descripcion\": \"\",\n  \"prioridad\": \"INVALIDA\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mis Tickets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response is an array', function () {",
+							"    pm.expect(pm.response.json()).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets/mios",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets", "mios"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ver Ticket por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Ticket has expected fields', function () {",
+							"    const body = pm.response.json();",
+							"    pm.expect(body).to.have.property('id');",
+							"    pm.expect(body).to.have.property('titulo');",
+							"    pm.expect(body).to.have.property('descripcion');",
+							"    pm.expect(body).to.have.property('prioridad');",
+							"    pm.expect(body).to.have.property('estado');",
+							"    pm.expect(body).to.have.property('creadoEn');",
+							"    pm.expect(body).to.have.property('slaVenceEn');",
+							"    pm.expect(body).to.have.property('creadoPor');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets", "{{ticketId}}"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ver Ticket inexistente (404)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 404 Not Found', function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{soporteToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/tickets/99999",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "tickets", "99999"]
+				}
+			},
+			"response": []
+		}
+	]
+}

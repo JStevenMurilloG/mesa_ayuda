@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "ping-collection-00",
+		"name": "00 - Ping",
+		"description": "Verifica que la API está viva.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "GET /api/ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response is pong', function () {",
+							"    pm.expect(pm.response.text()).to.eql('pong');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/ping",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "ping"]
+				}
+			},
+			"response": []
+		}
+	]
+}

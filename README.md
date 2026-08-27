@@ -21,7 +21,10 @@ Se eligió la **Opción A - Persistido en base de datos** por las siguientes raz
 DB_URL=jdbc:mysql://localhost:3306/mesa_ayuda
 DB_USERNAME=root
 DB_PASSWORD=root
+JWT_SECRET=<tu-clave-secreta-minimo-32 caracteres>
 ```
+
+> **Nota:** El archivo `.env` no se sube al repositorio por seguridad. Cada desarrollador debe crear su propia instancia.
 
 ### Compilar y ejecutar
 ```bash
@@ -50,7 +53,6 @@ La API arranca en `http://localhost:8080`.
 | Método | Ruta | Descripción |
 |---|---|---|
 | POST | /api/auth/logout | Revocar refresh token |
-| POST | /api/tickets | Crear ticket (SLA calculado automáticamente) |
 | GET | /api/tickets/mios | Listar tickets del usuario autenticado |
 | GET | /api/tickets/{id} | Ver ticket (solo dueño o SOPORTE/ADMIN) |
 
@@ -58,6 +60,7 @@ La API arranca en `http://localhost:8080`.
 
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
+| POST | /api/tickets | SOPORTE, ADMIN | Crear ticket (SLA calculado automáticamente) |
 | GET | /api/tickets | SOPORTE, ADMIN | Listar todos los tickets |
 | PATCH | /api/tickets/{id}/estado | SOPORTE, ADMIN | Cambiar estado de un ticket |
 | GET | /api/tickets/vencidos | SOPORTE, ADMIN | Tickets que superaron su SLA |
@@ -191,7 +194,6 @@ Requisito mínimo: sea cual sea la opción, el logout debe invalidar el refresh 
 | Método | Ruta | Descripción |
 |---|---|---|
 | POST | /api/auth/logout | Revoca el refreshToken del usuario autenticado |
-| POST | /api/tickets | Crea un ticket (el creador es el usuario autenticado) |
 | GET | /api/tickets/mios | Lista los tickets creados por el usuario autenticado |
 | GET | /api/tickets/{id} | Consulta un ticket (solo si es el dueño o tiene rol SOPORTE/ADMIN) |
 
@@ -199,6 +201,7 @@ Requisito mínimo: sea cual sea la opción, el logout debe invalidar el refresh 
 
 | Método | Ruta | Rol requerido | Descripción |
 |---|---|---|---|
+| POST | /api/tickets | SOPORTE, ADMIN | Crea un ticket (el creador es el usuario autenticado) |
 | GET | /api/tickets | SOPORTE, ADMIN | Lista todos los tickets |
 | PATCH | /api/tickets/{id}/estado | SOPORTE, ADMIN | Cambia el estado de un ticket |
 | GET | /api/tickets/vencidos | SOPORTE, ADMIN | Lista los tickets que superaron su SLA |
@@ -212,7 +215,7 @@ Requisito mínimo: sea cual sea la opción, el logout debe invalidar el refresh 
 4. Si el token falta o es inválido, responder 401 Unauthorized.
 5. Si el usuario está autenticado pero no tiene el rol necesario, responder 403 Forbidden.
 6. Un usuario con rol USUARIO no puede ver tickets de otros usuarios.
-7. Un refreshToken expirado, revocado o inexistente en /api/auth/refresh debe responder 401 Unauthorized.
+7. Un refreshToken expirado, revocado o inexistente en /api/auth/refresh debe responder 400 Bad Request.
 8. El refreshToken no debe servir para acceder a rutas protegidas; solo para renovar el access token.
 
 ## 9. Validaciones mínimas
@@ -242,11 +245,44 @@ Requisito mínimo: sea cual sea la opción, el logout debe invalidar el refresh 
 4. Evidencia, video demostrando:
    - Registro y login con obtención del accessToken y refreshToken.
    - Renovación del access token vía /api/auth/refresh.
-   - Logout que revoca el refresh token (un /refresh posterior falla con 401).
+   - Logout que revoca el refresh token (un /refresh posterior falla con 400).
    - Acceso denegado (401) a una ruta protegida sin token.
    - Acceso denegado (403) a una ruta de rol con un usuario USUARIO.
    - Creación de un ticket con SLA calculado correctamente.
    - Listado de tickets vencidos por un usuario SOPORTE.
+
+## 12. Colecciones de Postman
+
+La carpeta `postman/` contiene las colecciones organizadas para probar todos los endpoints de la API.
+
+### Archivos incluidos
+
+| Archivo | Descripción |
+|---------|-------------|
+| `Mesa-Ayuda-Local.postman_environment.json` | Entorno con variables compartidas (`baseUrl`, tokens, `ticketId`) |
+| `00-Ping.postman_collection.json` | Verifica que la API está viva |
+| `01-Auth-Publicos.postman_collection.json` | Registro (3 usuarios), Login (3 usuarios), Refresh token, validaciones |
+| `02-Auth-Logout.postman_collection.json` | Logout y verificación de revocación del refresh token |
+| `03-Tickets-Authenticado.postman_collection.json` | Crear tickets (ALTA/MEDIA/BAJA), mis tickets, ver por ID |
+| `04-Tickets-Soporte-Admin.postman_collection.json` | Listar todos, cambiar estado, tickets vencidos |
+| `05-Admin-Soporte.postman_collection.json` | Ascender usuario a rol SOPORTE |
+| `06-Casos-Negativos.postman_collection.json` | Pruebas de seguridad: 401 sin token, 403 con rol insuficiente |
+
+### Cómo usar
+
+1. Importar `Mesa-Ayuda-Local.postman_environment.json` en Postman y seleccionarlo como entorno activo.
+2. Ejecutar las colecciones en orden (00 → 06). La colección 01 crea automáticamente los 3 usuarios de prueba y popula los tokens en el entorno.
+3. Cada request tiene scripts de validación que verifican el código de respuesta y, cuando aplica, el contenido del body.
+
+### Usuarios de prueba (creados por la colección 01)
+
+| Email | Password | Rol inicial |
+|-------|----------|-------------|
+| usuario@test.com | usuario123 | USUARIO |
+| soporte@test.com | soporte123 | SOPORTE |
+| admin@test.com | admin1234 | ADMIN |
+
+> **Nota:** La contraseña del usuario USUARIO se puede cambiar a SOPORTE desde la colección 05 usando el token de ADMIN.
 
 ## 12. Rúbrica de evaluación
 
@@ -264,4 +300,4 @@ Requisito mínimo: sea cual sea la opción, el logout debe invalidar el refresh 
 
 - Agregar paginación al listado general de tickets.
 - Registrar un historial de cambios de estado por ticket (admin, o soporte y usuarios relacionados al ticket).
-- Endpoint de estadísticas: cantidad de tickets por estado y % de cumplimiento de SLA (solo damin).
+- Endpoint de estadísticas: cantidad de tickets por estado y % de cumplimiento de SLA (solo admin).
