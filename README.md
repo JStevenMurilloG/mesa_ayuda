@@ -20,7 +20,7 @@ Se eligió la **Opción A - Persistido en base de datos** por las siguientes raz
 ```properties
 DB_URL=jdbc:mysql://localhost:3306/mesa_ayuda
 DB_USERNAME=root
-DB_PASSWORD=root
+DB_PASSWORD=
 ```
 
 ### Compilar y ejecutar
