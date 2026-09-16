@@ -1,0 +1,20 @@
+services:
+  mesa-ayuda-api:
+    image: elchobikenobi/mesa-ayuda
+    ports:
+      - "3000:8080"
+    env_file:
+      - .env
+  db:
+    image: mysql:8.4
+    container_name: mesa-ayuda-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: mesa_ayuda
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    expose:
+      - 3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data:
